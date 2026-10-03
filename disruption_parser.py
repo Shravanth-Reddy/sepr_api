@@ -38,9 +38,11 @@ def heuristic_parse_article(article: Dict[str, Any]) -> DisruptionEvent:
     text_lower = text.lower()
 
     # 1. Location detection (cross-referenced with supply chain hubs)
-    location = "Port Klang"  # Default canonical scenario hub
+    location = "Port Klang"
     if "port klang" in text_lower or "klang" in text_lower:
         location = "Port Klang"
+    elif "manila" in text_lower:
+        location = "Manila"
     elif "yantian" in text_lower:
         location = "Yantian"
     elif "singapore" in text_lower:
@@ -49,6 +51,12 @@ def heuristic_parse_article(article: Dict[str, Any]) -> DisruptionEvent:
         location = "Kaohsiung"
     elif "chennai" in text_lower:
         location = "Chennai"
+    elif "rotterdam" in text_lower:
+        location = "Rotterdam"
+    elif "shanghai" in text_lower:
+        location = "Shanghai"
+    elif "busan" in text_lower:
+        location = "Busan"
 
     # 2. Disruption Type detection
     disruption_type = "port_congestion"
