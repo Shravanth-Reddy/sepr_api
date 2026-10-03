@@ -1,0 +1,55 @@
+{
+  "agent": "SignalAgent",
+  "status": "DISRUPTION_DETECTED",
+  "timestamp": "2026-10-03T06:18:50.545042+00:00",
+  "source_tier": "live_api",
+  "disruption": {
+    "event_name": "Tropical Weather & Port Disruption at Port Klang",
+    "disruption_type": "weather",
+    "location": "Port Klang",
+    "severity": "HIGH",
+    "delay_days": 7,
+    "headline": "Asia port congestion worsens amid bad weather, vessel bunching",
+    "source_url": "https://www.joc.com/article/asia-port-congestion-worsens-amid-bad-weather-vessel-bunching-6247280",
+    "summary": "Asia port congestion worsens amid bad weather, vessel bunching"
+  },
+  "affected_shipments_count": 1,
+  "primary_impact": {
+    "shipment_id": "SHIP-7010",
+    "po_id": "PO-7010",
+    "vessel_name": "MV Sentinel",
+    "origin": "Port Klang",
+    "destination": "Chennai",
+    "material_id": "STCOIL-440V",
+    "material_name": "Stator Coil 440V",
+    "supplier_id": "SUP-001",
+    "supplier_name": "Pacific Coils Sdn Bhd",
+    "po_quantity": 900,
+    "original_eta": "2026-10-11",
+    "revised_eta": "2026-10-18",
+    "delay_days": 7,
+    "days_to_revised_eta": 15,
+    "status": "IN_TRANSIT"
+  },
+  "all_impacted_shipments": [
+    {
+      "shipment_id": "SHIP-7010",
+      "po_id": "PO-7010",
+      "vessel_name": "MV Sentinel",
+      "origin": "Port Klang",
+      "destination": "Chennai",
+      "material_id": "STCOIL-440V",
+      "material_name": "Stator Coil 440V",
+      "supplier_id": "SUP-001",
+      "supplier_name": "Pacific Coils Sdn Bhd",
+      "po_quantity": 900,
+      "original_eta": "2026-10-11",
+      "revised_eta": "2026-10-18",
+      "delay_days": 7,
+      "days_to_revised_eta": 15,
+      "status": "IN_TRANSIT"
+    }
+  ],
+  "trace_log": "Signal Agent: detected Tropical Weather & Port Disruption at Port Klang via [Live SerpAPI (Asia port congestion worsens amid bad we...)], matched to PO-7010 (vessel MV Sentinel), material STCOIL-440V (Stator Coil 440V), ETA revised +7 days (2026-10-11 -> 2026-10-18).",
+  "downstream_ready": true
+}
