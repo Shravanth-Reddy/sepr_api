@@ -86,12 +86,12 @@ def get_incident_dossier(
     """).fetchone()
 
     so_due_dt = datetime.strptime(co["requested_date"], "%Y-%m-%d")   # 2026-10-19
-    otif_exposure_usd = co["quantity"] * (co["unit_price"] or 240.0)   # 500 * $240 = $120,000
 
-    # Without mitigation: WO-7782 can only start when revised shipment arrives on revised_eta_dt (Oct 18)
-    delayed_wo_start_dt = revised_eta_dt
-    delayed_wo_end_dt = delayed_wo_start_dt + timedelta(days=wo_duration_days)  # Oct 18 + 3 = Oct 21
-    days_past_sla = max(0, (delayed_wo_end_dt - so_due_dt).days)                # Oct 21 - Oct 19 = 2 days late -> triggers $120k penalty
+    # Without mitigation: WO-7782 can only start when revised shipment arrives on revised_eta_dt (Oct 18 if +7d)
+    delayed_wo_start_dt = max(wo_start_dt, revised_eta_dt)
+    delayed_wo_end_dt = delayed_wo_start_dt + timedelta(days=wo_duration_days)
+    days_past_sla = max(0, (delayed_wo_end_dt - so_due_dt).days)
+    otif_exposure_usd = (co["quantity"] * (co["unit_price"] or 240.0)) if days_past_sla > 0 else 0.0
 
     # 5. Recovery Options with Residual Gap and Dynamic C1-C8 Matrix
     templates = conn.execute("""
@@ -272,7 +272,7 @@ def get_incident_dossier(
     # Protected OTIF and Net Value for Recommended Option (OPT-A)
     rec_option = next((o for o in options_matrix if o["status"] in ["PASS", "PASS_WITH_WARNING"]), None)
     cost_opt_a = rec_option["estimated_cost_usd"] if rec_option else 30150.0
-    net_value_saved = otif_exposure_usd - cost_opt_a
+    net_value_saved = max(0.0, otif_exposure_usd - cost_opt_a) if days_past_sla > 0 else 0.0
 
     return {
         "incident_id": "INC-2026-PORT-KLANG-01",
@@ -280,7 +280,7 @@ def get_incident_dossier(
         "disruption": {
             "event_name": "Port Klang Typhoon Squall & Container Berth Congestion",
             "location": "Port Klang, Malaysia",
-            "severity": "CRITICAL",
+            "severity": "CRITICAL" if days_past_sla > 0 else "NOMINAL",
             "vessel_name": ship["vessel_name"],
             "shipment_id": ship["shipment_id"],
             "po_id": ship["po_id"],
@@ -319,19 +319,22 @@ def get_incident_dossier(
                 f"WO-7782 requires STCOIL-440V to produce 500 drives for ACME Corp (SO-55102, due {co['requested_date']}). "
                 f"Without recovery, parts arrive {revised_eta_str}, delaying completion to {delayed_wo_end_dt.strftime('%Y-%m-%d')} "
                 f"({days_past_sla} days past ACME's delivery SLA), triggering ${otif_exposure_usd:,.2f} in contract penalties."
+                if days_past_sla > 0 else
+                f"WO-7782 requires STCOIL-440V to produce 500 drives for ACME Corp (SO-55102, due {co['requested_date']}). "
+                f"Components arrive {revised_eta_str} on-time, completing by {delayed_wo_end_dt.strftime('%Y-%m-%d')} (0 days past SLA). Zero contract penalty exposure."
             )
         },
         "recovery_options_matrix": options_matrix,
         "executive_summary": {
-            "recommended_option_id": rec_option["option_id"] if rec_option else None,
-            "recommended_supplier": rec_option["supplier_name"] if rec_option else None,
-            "expedite_cost_usd": cost_opt_a,
+            "recommended_option_id": (rec_option["option_id"] if rec_option else None) if days_past_sla > 0 else "NONE_REQUIRED",
+            "recommended_supplier": (rec_option["supplier_name"] if rec_option else None) if days_past_sla > 0 else "Standard Supply Route",
+            "expedite_cost_usd": cost_opt_a if days_past_sla > 0 else 0.0,
             "penalty_avoided_usd": otif_exposure_usd,
             "net_value_saved_usd": net_value_saved,
-            "roi_ratio": round(net_value_saved / cost_opt_a, 2) if cost_opt_a > 0 else 0,
+            "roi_ratio": round(net_value_saved / cost_opt_a, 2) if (cost_opt_a > 0 and days_past_sla > 0) else 0,
             "residual_gap_days": rec_option["residual_gap_days"] if rec_option else 0,
-            "approval_required": rec_option["requires_vp_approval"] if rec_option else False,
-            "approval_authority": "VP Supply Chain (Rule C5: Spend > $30k)" if (rec_option and rec_option["requires_vp_approval"]) else "Plant Manager"
+            "approval_required": rec_option["requires_vp_approval"] if (rec_option and days_past_sla > 0) else False,
+            "approval_authority": ("VP Supply Chain (Rule C5: Spend > $30k)" if (rec_option and rec_option["requires_vp_approval"]) else "Plant Manager") if days_past_sla > 0 else "None"
         }
     }
 
