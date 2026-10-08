@@ -38,12 +38,13 @@ HARDCODED_SCENARIO: Dict[str, Any] = {
 }
 
 
-def fetch_from_live_api(query: str, timeout_seconds: int = 10) -> Optional[Dict[str, Any]]:
+def fetch_from_live_api(query: str, timeout_seconds: Optional[float] = None) -> Optional[Dict[str, Any]]:
     """Fetches news results from SerpAPI Google News engine."""
     api_key = config.SERPAPI_API_KEY
     if not api_key:
         logger.warning("No SERPAPI_API_KEY configured. Skipping Tier 1 live call.")
         return None
+    timeout = timeout_seconds if timeout_seconds is not None else config.SERPAPI_TIMEOUT_SECONDS
 
     url = "https://serpapi.com/search.json"
     params = {
@@ -55,11 +56,20 @@ def fetch_from_live_api(query: str, timeout_seconds: int = 10) -> Optional[Dict[
     }
 
     try:
-        response = requests.get(url, params=params, timeout=timeout_seconds)
+        response = requests.get(url, params=params, timeout=timeout)
         if response.status_code == 200:
             data = response.json()
             if "error" in data:
                 logger.warning(f"SerpAPI returned error message: {data['error']}")
+                # If specific shipment query returned no results, retry with default port query as per spec
+                if query != config.DEFAULT_SEARCH_QUERY:
+                    logger.info("Broadening query to default port disruption query...")
+                    fallback_params = dict(params, q=config.DEFAULT_SEARCH_QUERY)
+                    fallback_resp = requests.get(url, params=fallback_params, timeout=timeout)
+                    if fallback_resp.status_code == 200:
+                        fb_data = fallback_resp.json()
+                        if "error" not in fb_data and "news_results" in fb_data and fb_data["news_results"]:
+                            return fb_data
                 return None
             return data
         else:
@@ -99,7 +109,7 @@ def save_to_cache(data: Dict[str, Any]) -> bool:
 def fetch_disruption_news(
     query: Optional[str] = None, 
     force_tier: Optional[int] = None,
-    timeout_seconds: int = 10
+    timeout_seconds: Optional[float] = None
 ) -> Tuple[Dict[str, Any], str]:
     """
     Executes the 3-Tier Fallback Chain:
@@ -118,7 +128,12 @@ def fetch_disruption_news(
         if data:
             save_to_cache(data)
             return data, "live_api"
-        raise RuntimeError("Tier 1 (Live API) forced but failed.")
+        if not config.SERPAPI_API_KEY:
+            raise RuntimeError("Tier 1 (Live API) unavailable: SERPAPI_API_KEY is not configured.")
+        raise RuntimeError(
+            f"Tier 1 (Live API) unavailable: SerpAPI did not return usable data within "
+            f"{timeout_seconds if timeout_seconds is not None else config.SERPAPI_TIMEOUT_SECONDS:g}s."
+        )
 
     elif force_tier == 2:
         cached = fetch_from_cache()

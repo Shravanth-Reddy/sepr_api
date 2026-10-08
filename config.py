@@ -25,6 +25,7 @@ DEFAULT_SEARCH_QUERY = os.getenv(
     "Port Klang port disruption OR delay OR strike OR weather"
 ).strip()
 DEFAULT_DELAY_DAYS = int(os.getenv("DEFAULT_DELAY_DAYS", "7"))
+SERPAPI_TIMEOUT_SECONDS = float(os.getenv("SERPAPI_TIMEOUT_SECONDS", "15"))
 
 # Reference date for the demo scenario
 REFERENCE_DATE = "2026-10-03"

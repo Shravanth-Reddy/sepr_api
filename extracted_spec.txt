@@ -1,0 +1,1478 @@
+Final Product Definition and Four-Day
+Execution Plan
+1. Final product definition
+Target end-to-end flow
+External Event
+      ↓
+SerpApi Discovery
+      ↓
+Evidence Collection
+      ↓
+Disruption Understanding
+      ↓
+Entity Extraction
+      ↓
+Dependency Mapping
+      ↓
+Impact Analysis
+      ↓
+Response Generation
+      ↓
+Response Evaluation
+      ↓
+Explainable Report
+      ↓
+Dashboard and Human Action
+Stage Input Output Mechanism Why it
+matters
+External event Shipment context,
+vessel, route,
+material, optional
+query
+Search context Existing
+shipment
+selected from
+SQLite
+Grounds the
+search in a
+real
+operational
+object
+Final Product Deﬁnition and Four-Day Execution Plan
+Page 1 of 33
+---PAGE---
+Stage Input Output Mechanism Why it
+matters
+SerpApi
+discovery
+Generated
+operational query
+Google News
+results
+Live SerpApi
+google_news
+search
+Provides
+external
+information
+the ERP
+cannot
+contain
+Evidence
+collection
+Raw SerpApi results Selected source
+articles, URLs,
+dates, snippets
+Filter, rank,
+deduplicate,
+preserve
+metadata
+Makes the
+conclusion
+verifiable
+Disruption
+understanding
+Article title/snippet Event type,
+location, delay,
+severity,
+summary
+Deterministic
+parser with
+optional LLM
+interpretation
+Converts
+unstructured
+text into
+structured
+information
+Entity
+extraction
+Parsed event plus
+shipment context
+Supplier, vessel,
+route, shipment,
+component
+Entity
+matching
+against
+controlled
+ERP dataset
+Connects
+outside
+information
+to internal
+operations
+Dependency
+mapping
+Component/material
+ID
+Component →
+product → work
+order →
+customer order
+Existing BOM
+and pegging
+tables
+Explains why
+the
+disruption
+matters
+Impact
+analysis
+Inventory, burn rate,
+ETA, production plan
+Stockout date,
+shortage
+window,
+affected orders,
+exposure
+Deterministic
+calculations
+Produces
+defensible
+operational
+impact
+Response
+generation
+Impact and
+operational
+constraints
+Candidate
+recovery options
+Existing
+recovery
+templates
+and supplier
+data
+Moves
+beyond
+alerting
+Response
+evaluation
+Options plus
+constraints
+Pass, warning,
+veto,
+recommendation
+Deterministic
+C1–C8 rules
+Explains why
+one option is
+preferred
+Final Product Deﬁnition and Four-Day Execution Plan
+Page 2 of 33
+---PAGE---
+2. Core product questions
+The final demo must answer these questions visibly:
+Stage Input Output Mechanism Why it
+matters
+Report All prior layers Complete
+evidence-
+backed decision
+record
+Backend
+response
+rendered in
+React
+Gives the
+user one
+coherent
+answer
+Human action Recommendation
+and approval reason
+Approval,
+escalation, or
+decline record
+Existing
+decision
+endpoint
+Preserves
+human
+governance
+without
+pretending
+automation
+Final Product Deﬁnition and Four-Day Execution Plan
+Page 3 of 33
+---PAGE---
+3. Current versus target gap analysis
+Question Target answer
+What happened? A disruption event extracted from a SerpApi result
+Where? Location extracted from the article and matched to
+the shipment route
+When? Article date, search timestamp, original ETA,
+revised ETA
+Who/what is affected? Supplier, shipment, component, product, work
+order, customer order
+Why does it matter? Inventory depletion and dependency chain show
+production exposure
+How severe is it? Derived severity based on delay, stockout,
+shortage window, and customer exposure
+What should we do? Candidate recovery options
+Why this response? Evidence, dependency chain, impact, constraints,
+and financial trade-off
+What next? Human approval, escalation, decline, or monitoring
+Can I trust this? Source URL, source tier, search query, parsed
+facts, calculations, and rule reasons
+Capability Current
+implementation
+Target implementation Gap Hackathon
+importance
+Priority
+External
+discovery
+SerpApi client
+exists with
+fallback
+Live search materially
+influences the final report
+Main evidence
+can be replaced
+by fallback
+Critical to
+judging
+P0
+Search query Shipment-
+based query
+exists
+Query should include
+supplier, vessel, port,
+material, route, and
+disruption terms
+Current query is
+acceptable but
+narrow
+High P1
+Evidence
+preservation
+Article returned
+in search
+response;
+evidence
+endpoint forces
+demo data
+Exact search result used
+for dossier and audit
+Investigation and
+evidence can
+disagree
+Critical
+trust gap
+P0
+Final Product Deﬁnition and Four-Day Execution Plan
+Page 4 of 33
+---PAGE---
+Capability Current
+implementation
+Target implementation Gap Hackathon
+importance
+Priority
+Multi-result
+processing
+First relevant
+result selected
+Rank, filter, deduplicate,
+and retain several sources
+Current parsing is
+first-result
+oriented
+High
+credibility
+P1
+Source
+freshness
+Article date
+displayed
+Freshness should
+influence confidence
+No freshness
+logic
+Medium P1
+Disruption
+extraction
+Heuristic
+parser; optional
+OpenAI in
+disconnected
+path
+Structured event with
+explicit facts and
+confidence
+Main path is
+keyword-based
+Critical P0
+Entity
+resolution
+Vessel/location
+matching
+against SQLite
+Match supplier, shipment,
+component, route, and
+product with reasons
+Resolution is
+simple and
+sometimes broad
+Critical P0
+Dependency
+chain
+BOM and work-
+order data exist
+Visible component →
+product → production →
+customer chain
+Chain is not fully
+surfaced in search
+result/report
+Critical P0
+Impact
+calculation
+Canonical
+dossier plus
+generic
+LangGraph
+engine
+Generic selected-
+shipment calculation
+Main dossier is
+hardcoded to
+SHIP-7010
+Critical P0
+Severity Parser assigns
+keyword
+severity;
+dossier uses
+canonical values
+Derived severity with
+explanation
+Current severity
+is weakly justified
+High P1
+Response
+options
+Four database
+templates and
+C1–C8 rules
+Options tied to current
+impact and selected
+operation
+Existing options
+are scenario-
+specific
+High P1
+Response
+reasoning
+Deterministic
+rule reasons;
+optional Gemini
+text
+Evidence-backed “why
+this option” explanation
+Reasoning is split
+across paths
+Critical P0
+Report Dossier and
+JSON export
+Single complete evidence-
+to-decision report
+Current report
+mixes live, fixture,
+and hardcoded
+values
+Critical P0
+Audit
+persistence
+In-memory lists Search and decision
+records durable for the
+demo
+Restart loses
+history
+High P1
+Decision
+execution
+PO-shaped
+JSON
+Clearly labeled
+recommendation/approval
+simulation
+Must not imply
+real procurement
+execution
+Medium P1
+Final Product Deﬁnition and Four-Day Execution Plan
+Page 5 of 33
+---PAGE---
+4. The core loop
+Smallest complete loop
+DISRUPTION
+→ SEARCH
+→ EVIDENCE
+→ IMPACT
+→ RESPONSE
+→ EXPLANATION
+→ REPORT
+What already exists
+Capability Current
+implementation
+Target implementation Gap Hackathon
+importance
+Priority
+Authentication Role selector
+only
+Not necessary for
+hackathon
+No real security Low for
+demo
+P3
+Multi-agent
+orchestration
+LangGraph
+exists but is
+disconnected
+One reliable orchestration
+path
+Multiple
+disconnected
+paths create
+ambiguity
+High P1
+Real-time
+monitoring
+Request-driven
+search only
+Not required for demo No
+scheduler/stream
+Low P3
+Notifications Not
+implemented
+Not necessary to prove
+core idea
+No outbound
+action
+Low P3
+Loop stage Existing support
+Disruption SerpApi live/cache/demo result
+Search /api/signal-search
+Evidence Article title, source, URL, date, snippet
+Impact impact_engine_v2.py and SQLite calculations
+Response Recovery option templates and C1–C8 matrix
+Explanation Rule reasons, gap equation, proof narrative
+Report Dossier UI, audit UI, JSON export
+Final Product Deﬁnition and Four-Day Execution Plan
+Page 6 of 33
+---PAGE---
+What currently prevents a genuine end-to-end loop
+1 . The evidence endpoint does not use the actual investigation result.
+2. The dossier is only generated for SHIP-7010.
+3. The main UI parser is heuristic-only.
+4. Search fallback can create an incident without live evidence.
+5. The dependency chain is not presented as a complete evidence path.
+6. Audit records are not durable.
+7. LangGraph and standalone agent paths are disconnected from the UI.
+Core-loop conclusion
+The project is close to a compelling demo, but the most important work is wiring the
+existing pieces into one honest path, not adding more modules.
+5. SerpApi must be central
+What SerpApi should search for
+For a selected shipment, generate a query containing:
+vessel name
+origin port
+destination
+supplier
+material/component
+disruption terms
+Example:
+"MV Sentinel" "Port Klang" Chennai
+"Pacific Coils" OR "stator coil"
+delay OR disruption OR congestion OR storm OR strike
+The current query should be retained as a fallback, but the target query should provide
+stronger operational context.
+Appropriate API
+Continue using:
+SerpApi Google News
+Final Product Deﬁnition and Four-Day Execution Plan
+Page 7 of 33
+---PAGE---
+This is appropriate because the product needs:
+Recent news.
+Source metadata.
+Article URLs.
+Publication dates.
+Search result snippets.
+Multiple independent sources.
+Result processing
+The search layer should:
+1 . Retrieve several results.
+2. Discard results without meaningful disruption language.
+3. Score relevance using:
+Vessel match.
+Port/location match.
+Supplier/material match.
+Disruption-term match.
+Freshness.
+4. Deduplicate by normalized URL or headline.
+5. Preserve the top three evidence items.
+6. Pass the selected article set to parsing.
+7. Store the exact query and evidence in the investigation record.
+Why SerpApi is necessary
+The internal database knows:
+shipment
+supplier
+material
+inventory
+work order
+customer order
+It does not know:
+Final Product Deﬁnition and Four-Day Execution Plan
+Page 8 of 33
+---PAGE---
+what is currently happening at the port
+whether a storm, strike, closure, or congestion event exists
+whether an external event is recent
+what external sources are reporting
+SerpApi is therefore not decorative. It supplies the external event that initiates the
+operational reasoning chain.
+The demo must show:
+SerpApi source
+→ selected article
+→ extracted disruption
+→ matched internal shipment
+→ calculated impact
+→ recommended response
+If the live result is unavailable, the UI must clearly label the fallback and avoid presenting it
+as live discovery.
+6. Practical evidence and trust model
+The system should separate three categories.
+Fact
+Directly obtained from a source or database.
+Example:
+Fact:
+Port Klang congestion is mentioned in the selected article.
+Source:
+SerpApi result URL and publication date.
+Inference
+Calculated or resolved from facts.
+Example:
+Inference:
+The selected disruption is relevant to SHIP-7010 because the article mentions
+Port Klang and the shipment originates from Port Klang.
+Final Product Deﬁnition and Four-Day Execution Plan
+Page 9 of 33
+---PAGE---
+Recommendation
+Decision derived from impact and constraints.
+Example:
+Recommendation:
+Evaluate OPT-A because it arrives before the revised ETA, passes hard 
+constraints,
+and costs less than the calculated OTIF exposure.
+Minimal evidence object
+A practical evidence record should contain:
+{
+  "search_id": "SEARCH-...",
+  "query": "...",
+  "searched_at": "...",
+  "source_tier": "live_api",
+  "sources": [
+    {
+      "title": "...",
+      "url": "...",
+      "publisher": "...",
+      "published_at": "...",
+      "snippet": "...",
+      "relevance": 0.92
+    }
+  ],
+  "facts": [
+    {
+      "claim": "Port Klang congestion is reported",
+      "source_index": 0
+    }
+  ],
+  "inferences": [
+    {
+      "claim": "SHIP-7010 may be affected",
+      "reason": "Shipment origin matches reported location"
+    }
+  ],
+  "recommendation_reasons": [
+    "Arrival is before revised ETA",
+Final Product Deﬁnition and Four-Day Execution Plan
+Page 10 of 33
+---PAGE---
+    "Option passes C1-C4 and C6-C8",
+    "Cost is below calculated exposure"
+  ]
+}
+UI presentation
+The final report should visibly separate:
+External evidence
+↓
+Parsed disruption
+↓
+Internal match
+↓
+Dependency chain
+↓
+Calculated impact
+↓
+Response evaluation
+↓
+Recommendation
+This is more important than adding another dashboard card.
+7. Hardcoded information classification
+Current
+hardcoded
+item
+Classification Target source Four-day
+implementation
+SHIP-7010
+hero
+selection
+MUST REMOVE from
+business branching
+Selected operation ID Use selected
+shipment data for
+dossier calculation
+STCOIL-440V
+direct
+selection
+MUST MAKE DYNAMIC Shipment PO material Pass material ID
+through impact
+engine
+WO-7782
+direct
+selection
+MUST MAKE DYNAMIC Shortage-linked work
+orders
+Select affected work
+order from pegging
+result
+Final Product Deﬁnition and Four-Day Execution Plan
+Page 11 of 33
+---PAGE---
+Current
+hardcoded
+item
+Classification Target source Four-day
+implementation
+SO-55102
+direct
+selection
+MUST MAKE DYNAMIC Work-order customer
+order
+Aggregate or select
+affected customer
+orders
+Incident ID MUST MAKE DYNAMIC
+or clearly mark fixture
+Search/investigation
+ID
+Generate
+investigation-level
+incident record
+Port Klang
+event
+identity
+MUST REMOVE from live
+conclusion
+Parsed SerpApi result Only use fallback
+event when
+explicitly labeled
+Assembly
+Line 2
+ACCEPTABLE AS DEMO
+FIXTURE if labeled
+Controlled
+production-line field
+Keep in fixture data
+but expose
+provenance
+AIS telemetry MUST REMOVE from
+trust-critical evidence
+Real tracking source
+or omit
+Remove or label as
+unavailable
+Hardcoded
+scenario
+article
+ACCEPTABLE AS DEMO
+FIXTURE
+Controlled fallback
+fixture
+Keep for offline
+demo, never label as
+live
+Reference
+date 2026-
+10-03
+ACCEPTABLE AS DEMO
+FIXTURE
+Demo clock or current
+timestamp
+Keep deterministic
+for reproducibility
+Recovery
+templates
+ACCEPTABLE AS DEMO
+FIXTURE
+Controlled SQLite
+dataset
+Keep; dynamically
+evaluate results
+C1–C8 rule
+definitions
+ACCEPTABLE AS DEMO
+FIXTURE
+SQLite rule table Keep; show rule
+provenance
+Audit lists MUST MAKE
+DYNAMIC/PERSISTED
+SQLite table or file Add lightweight
+SQLite audit tables
+Demo role
+selector
+NOT WORTH CHANGING Real auth system Keep and label as
+demo access
+Generated
+PO number
+ACCEPTABLE AS DEMO
+OUTPUT
+Procurement system
+in production
+Clearly call it
+simulated PO
+authorization
+Final Product Deﬁnition and Four-Day Execution Plan
+Page 12 of 33
+---PAGE---
+Rule
+Static relationship data is acceptable. Static business conclusions are not.
+Acceptable:
+The demo dataset says EuroCoils has a 10-day lead time.
+The engine calculates whether that bridges the shortage.
+Not acceptable:
+Always display EuroCoils as the recommended supplier.
+8. Minimum dependency/product-impact model
+Do not build a large graph platform. The existing SQLite schema is sufficient if the report
+exposes the chain clearly:
+Supplier
+  ↓
+Purchase Order / Shipment
+  ↓
+Component
+  ↓
+BOM
+  ↓
+Finished Product
+  ↓
+Work Order
+  ↓
+Customer Order
+For the demo:
+Final Product Deﬁnition and Four-Day Execution Plan
+Page 13 of 33
+---PAGE---
+Pacific Coils
+  ↓
+SHIP-7010 / PO-7010
+  ↓
+STCOIL-440V
+  ↓
+MOTOR-ASM-100
+  ↓
+APEXM-100
+  ↓
+WO-7782
+  ↓
+SO-55102 / ACME Corp
+Minimum required implementation
+1 . Resolve the affected material dynamically.
+2. Query BOM relationships for the finished product.
+3. Find work orders requiring that material with shortage quantity.
+4. Find customer orders linked to affected work orders.
+5. Display the chain in the report.
+6. Calculate impact from those rows.
+A new graph database is unnecessary.
+9. Production impact engine
+Defensible calculation
+Use actual values for:
+On-hand quantity.
+Daily consumption.
+Expected arrival.
+Disruption delay.
+Work-order start date.
+Customer requested date.
+Supplier lead time.
+Recovery arrival date.
+Calculate:
+Final Product Deﬁnition and Four-Day Execution Plan
+Page 14 of 33
+---PAGE---
+Time to stockout
+= on_hand / daily_consumption
+Shortage window
+= revised ETA - stockout date
+Production exposure
+= affected work orders whose planned execution overlaps the shortage window
+Customer exposure
+= affected customer orders linked to those work orders
+Impact classification
+Use a defensible four-level model:
+The system should show the reason:
+CRITICAL because:
+- stockout occurs on 2026-10-08
+- revised shipment arrives on 2026-10-18
+- WO-7782 starts during the shortage window
+- SO-55102 is due on 2026-10-19
+- calculated OTIF exposure is $120,000
+Do not claim precision the data cannot support.
+10. Response engine
+Deterministic responsibilities
+Keep these deterministic:
+Level Basis
+LOW No shortage; inventory buffer absorbs delay
+MODERATE Shortage possible but no confirmed customer SLA
+exposure
+HIGH Work order overlaps shortage window
+CRITICAL Work order and customer delivery commitment are
+exposed
+Final Product Deﬁnition and Four-Day Execution Plan
+Page 15 of 33
+---PAGE---
+Recovery option generation.
+Arrival date calculation.
+Cost calculation.
+MOQ evaluation.
+PPAP evaluation.
+Frozen schedule evaluation.
+BOM revision evaluation.
+Customs restriction evaluation.
+Capacity evaluation.
+Approval threshold evaluation.
+LLM responsibilities
+Use an LLM only where it adds value:
+Summarize multiple articles.
+Explain the disruption in plain language.
+Draft an executive briefing.
+Convert deterministic reasoning into a concise explanation.
+The LLM must not decide:
+Whether inventory is short.
+Whether an option passes a hard constraint.
+Whether a customer order is exposed.
+Whether a purchase order is authorized.
+Candidate actions
+The final report can include:
+1 . Alternate supplier.
+2. Expedite existing supply.
+3. Use or reallocate available inventory.
+4. Reschedule production.
+5. Substitute material.
+6. Monitor without escalation.
+7. Escalate to VP.
+Only options supported by current data should be shown.
+Final Product Deﬁnition and Four-Day Execution Plan
+Page 16 of 33
+---PAGE---
+11. Response comparison
+Response comparison is practical and already partially implemented. Keep four options:
+OPT-A — EuroCoils expedited supply
+OPT-B — Hanoi alternate supply
+OPT-C — Production reschedule
+OPT-D — Material substitution
+Compare:
+Arrival date.
+Residual shortage.
+Cost.
+MOQ.
+Certification.
+Schedule constraints.
+Customs restrictions.
+Capacity.
+Approval authority.
+Rule failures.
+Do not add a sophisticated optimizer. The existing deterministic matrix is enough for the
+demo if the explanation is made visible and tied to the selected operation.
+12. Multi-agent architecture decision
+Recommended architecture
+Use one orchestrated pipeline with clearly named deterministic stages:
+Search Adapter
+  ↓
+Evidence Parser
+  ↓
+ERP Resolver
+  ↓
+Impact Engine
+  ↓
+Response Evaluator
+  ↓
+Explanation Generator
+Final Product Deﬁnition and Four-Day Execution Plan
+Page 17 of 33
+---PAGE---
+Keep
+serp_client.py
+disruption_parser.py
+erp_resolver.py
+impact_engine.py or a generalized impact_engine_v2.py
+constraint_agent.py deterministic evaluator
+recommendation.py only for optional narrative generation
+De-emphasize
+Separate SignalAgent file output path.
+Disconnected LangGraph path.
+Multiple model fallback names that may not exist or may be unreliable.
+Marketing language such as “autonomous multi-agent system.”
+Recommended claim
+An evidence-backed, orchestrated supply-chain disruption analysis pipeline
+with deterministic impact and constraint evaluation and optional LLM-assisted 
+explanation.
+That is technically credible.
+13. Final report design
+The final report should contain:
+Section Source Logic type
+Disruption
+summary
+SerpApi article Extracted/LLM-assisted
+Search provenance Search response Dynamic
+Source evidence SerpApi results Dynamic or clearly labeled
+fallback
+Location and time Article plus search metadata Extracted
+Supplier SQLite shipment/PO Database-backed
+Component SQLite PO/material Database-backed
+Final Product Deﬁnition and Four-Day Execution Plan
+Page 18 of 33
+---PAGE---
+“Why this option?” explanation
+For OPT-A, the report should say:
+OPT-A is recommended because:
+1. SerpApi evidence indicates a Port Klang disruption.
+2. The affected route matches SHIP-7010.
+3. SHIP-7010 carries STCOIL-440V from Pacific Coils.
+4. STCOIL-440V is required by affected ApexX-100 work orders.
+5. Inventory reaches stockout before the disrupted shipment arrives.
+6. EuroCoils arrives earlier than the revised ETA.
+7. OPT-A passes hard constraints C1-C4 and C6-C8.
+8. Its cost is lower than the calculated OTIF exposure.
+9. C5 requires VP approval because spend exceeds $30,000.
+Every sentence should be traceable to data or a rule.
+Section Source Logic type
+Product BOM Database-backed
+Dependency chain BOM and work-order joins Calculated
+Production impact Inventory and schedule Deterministic
+Severity Impact rules Derived
+Response options Recovery templates Database-backed
+Option evaluation C1–C8 Deterministic
+Recommendation Surviving options and trade-off Derived
+Why this option Evidence + dependency + rule
+reasons
+Generated from known facts
+Confidence Source quality and match quality Derived
+Next action Human decision state User action
+Audit record Search and decision metadata Persisted for demo
+Final Product Deﬁnition and Four-Day Execution Plan
+Page 19 of 33
+---PAGE---
+14. Judge attack test
+Final Product Deﬁnition and Four-Day Execution Plan
+Page 20 of 33
+---PAGE---
+Judge question Current answer Target answer
+Where did this disruption
+come from?
+Sometimes live, sometimes
+cache/demo fallback
+Exact source URL and source
+tier shown
+Is this live data? Not always; fallback can
+mask failure
+Clearly label live, cache, or
+demo
+Why is this shipment
+affected?
+Vessel/location matching Show matching evidence and
+route relationship
+Why is impact high? Canonical dossier values Show inventory, dates,
+dependency, and customer
+SLA
+Show me the dependency Partially present in
+database/UI
+Display full chain visibly
+Where did
+recommendation come
+from?
+Rules and seeded options Show option-level rule
+reasons
+Why is this option better? Financial and rule matrix
+exists
+Present concise evidence-
+backed explanation
+What if I give another
+disruption?
+Parser supports some
+variation
+Process a new event without
+hero-only assumptions
+Is anything hardcoded? Yes Declare fixtures and
+distinguish them from results
+What does SerpApi
+contribute?
+Search result/fallback source Show article directly
+influencing parsed event and
+report
+What if SerpApi fails? Cache or hardcoded scenario Label fallback and avoid false
+live claims
+Is this automated? Analysis is automated; action
+is not
+State exactly where human
+approval remains
+Is this multi-agent? Separate paths exist Present as orchestrated
+pipeline, not autonomous
+agents
+Can I verify the source? URL exists in search
+response
+Preserve exact article in final
+report
+Final Product Deﬁnition and Four-Day Execution Plan
+Page 21 of 33
+---PAGE---
+15. Demo robustness strategy
+What should be live
+SerpApi query.
+At least one real search result.
+Search query and timestamp.
+Source URL.
+Parsed article title/snippet.
+Entity match against the controlled SQLite dataset.
+What should be controlled
+ERP relationships.
+BOM.
+Inventory.
+Work orders.
+Customer orders.
+Supplier master.
+Recovery templates.
+C1–C8 rules.
+Demo reference date.
+Safe demo behavior
+Use two modes.
+Live demo mode
+Live SerpApi
+→ cache on success
+→ visible fallback label if unavailable
+Deterministic demo mode
+Controlled fixture
+→ clearly labeled “Demo fallback”
+→ same dependency and impact calculation
+The fallback must not be presented as a real external discovery.
+Final Product Deﬁnition and Four-Day Execution Plan
+Page 22 of 33
+---PAGE---
+Three-minute demo sequence
+0:00–0:20
+Select Planner and choose SHIP-7010.
+0:20–0:45
+Run search and show:
+- Generated query
+- SerpApi source
+- Article URL
+- Search timestamp
+0:45–1:15
+Show structured disruption:
+- Port Klang
+- Delay
+- Supplier
+- Shipment
+- Component
+1:15–1:45
+Show dependency chain:
+- Component
+- Product
+- Work order
+- Customer order
+- Stockout and revised ETA
+1:45–2:20
+Show response options:
+- OPT-A passes
+- OPT-B/C/D fail specific constraints
+- Cost versus exposure
+2:20–2:45
+Show “Why OPT-A?” explanation.
+2:45–3:00
+Show approval decision and exported audit/report.
+Final Product Deﬁnition and Four-Day Execution Plan
+Page 23 of 33
+---PAGE---
+16. Four-day execution plan
+Day 1 — Make the core search-to-report path honest
+Objective: Ensure the exact SerpApi result used for investigation flows into the final
+report.
+Tasks
+1 . Add an investigation result object that preserves:
+Search ID.
+Query.
+Search timestamp.
+Source tier.
+Multiple source articles.
+Selected article.
+Parsed signal.
+2. Store the latest investigation result in a shared backend record.
+3. Change /api/evidence/<incident_id> to use the actual investigation evidence when
+available.
+4. Remove or relabel hardcoded AIS telemetry.
+5. Make source tier prominent:
+Live SerpAPI.
+Local cache.
+Demo fallback.
+Unavailable.
+6. Add tests for:
+Live result shape.
+Cache result shape.
+Demo fallback label.
+Search failure.
+Exact source URL preservation.
+Expected output: The article shown in the planner, evidence drawer, audit view, and
+exported report is the same article.
+Acceptance criteria
+A judge can click from investigation to source evidence.
+The UI never calls demo evidence while claiming it came from live search.
+Final Product Deﬁnition and Four-Day Execution Plan
+Page 24 of 33
+---PAGE---
+Every result visibly declares its source tier.
+Day 2 — Generalize impact beyond SHIP-7010
+Objective: Allow the selected shipment and material to drive the impact calculation.
+Tasks
+1 . Replace direct SHIP-7010 branching in the main search path.
+2. Generalize dossier inputs:
+Shipment ID.
+Material ID.
+Delay days.
+Reference date.
+3. Resolve affected work orders from wo_materials.
+4. Resolve affected customer orders from affected work orders.
+5. Use BOM relationships to show: component → subassembly/product.
+6. Preserve the canonical scenario as a controlled fixture, but not as hidden business
+logic.
+7. Add explicit unsupported-state output if a selected shipment lacks enough data.
+Expected output: At least two shipments can be processed honestly:
+SHIP-7010 — disruption with shortage.
+SHIP-6205-01 — disruption absorbed by inventory or no production exposure.
+Acceptance criteria
+The selected shipment ID controls the dossier.
+No business result depends on an unconditional SHIP-7010 branch.
+The report can show “no production impact” without inventing an incident.
+Day 3 — Add explainability and durable demo audit
+Objective: Make the recommendation defensible in front of a judge.
+Tasks
+1 . Add an explicit evidence chain:
+Facts.
+Inferences.
+Calculations.
+Recommendations.
+Final Product Deﬁnition and Four-Day Execution Plan
+Page 25 of 33
+---PAGE---
+2. Add a visible dependency chain component.
+3. Add severity reasoning.
+4. Add a “Why this option?” panel.
+5. Persist investigation and decision records in lightweight SQLite tables.
+6. Ensure exported JSON includes:
+Exact source articles.
+Parsed signal.
+Dependency chain.
+Impact calculations.
+Option rule evaluations.
+Recommendation reasons.
+Decision record.
+7. Update audit workspace to read the persisted records.
+Expected output: A judge can ask “why?” and the application can answer from visible
+evidence and deterministic calculations.
+Acceptance criteria
+Recommendation reasons are not just prose.
+Every major number links to a source or formula.
+Restarting the backend does not erase the demo audit record.
+Day 4 — Reliability, documentation, and demo packaging
+Objective: Make the project submission-ready.
+Tasks
+1 . Run frontend build and backend tests.
+2. Add branch tests for:
+Live success.
+Cache fallback.
+Demo fallback.
+Search failure.
+No disruption.
+No delay.
+Unmatched disruption.
+Inventory absorbed.
+Shortage.
+Final Product Deﬁnition and Four-Day Execution Plan
+Page 26 of 33
+---PAGE---
+Recommendation.
+Approval and audit.
+3. Update README/setup documentation:
+Environment variables.
+Database.
+Running backend.
+Running frontend.
+SerpApi usage.
+Fallback behavior.
+Demo mode.
+Limitations.
+4. Remove unsupported claims:
+“Real-time.”
+“Autonomous.”
+“Multi-agent,” unless explicitly qualified.
+“Purchase order issued,” if only simulated.
+5. Record a three-minute demo.
+6. Verify public repository contains:
+Source.
+Setup instructions.
+SerpApi explanation.
+Demo steps.
+Known limitations.
+Screenshots or demo video link if required.
+Expected output: A reliable public submission with a repeatable demo.
+Acceptance criteria
+Fresh setup works.
+Demo can be completed in under three minutes.
+SerpApi’s contribution is visible.
+Fallbacks are honest.
+No unexplained hardcoded business result remains in the main path.
+17. Do not build
+Do not attempt these before submission:
+Final Product Deﬁnition and Four-Day Execution Plan
+Page 27 of 33
+---PAGE---
+Microservices.
+Message brokers.
+Kubernetes or distributed deployment.
+Enterprise authentication.
+Full RBAC and identity management.
+A new graph database.
+Large-scale knowledge-graph infrastructure.
+Real-time streaming architecture.
+Automatic supplier communication.
+Actual procurement-system integration.
+Full AIS or vessel-tracking integration.
+Perfect event deduplication across the entire web.
+A custom machine-learning model.
+Complex probabilistic forecasting.
+Autonomous purchasing.
+More agents for marketing.
+A generalized optimization solver.
+Multi-tenant architecture.
+Production-grade observability platform.
+Full workflow/task-management product.
+Mobile application.
+Broad ERP connector framework.
+These do not materially improve the core hackathon proof within four days.
+18. Final target architecture
+Selected Shipment / User Query
+              ↓
+       Search Query Builder
+              ↓
+        SerpApi Google News
+              ↓
+       Evidence Normalization
+       - URLs
+       - dates
+       - snippets
+       - source tier
+Final Product Deﬁnition and Four-Day Execution Plan
+Page 28 of 33
+---PAGE---
+              ↓
+      Disruption Extraction
+      - event type
+      - location
+      - delay
+      - severity
+              ↓
+       ERP Entity Resolution
+      - shipment
+      - supplier
+      - component
+              ↓
+      Dependency Mapping
+      - BOM
+      - work orders
+      - customer orders
+              ↓
+       Impact Calculation
+      - inventory
+      - stockout
+      - shortage
+      - OTIF exposure
+              ↓
+      Response Evaluation
+      - recovery options
+      - C1–C8 rules
+              ↓
+      Explainable Recommendation
+      - evidence
+      - dependency
+      - impact
+      - constraints
+              ↓
+       Complete Report
+              ↓
+      Dashboard + Human Decision
+              ↓
+       Durable Audit Record
+Existing technologies are sufficient:
+Flask.
+React/Vite.
+SQLite.
+SerpApi.
+Final Product Deﬁnition and Four-Day Execution Plan
+Page 29 of 33
+---PAGE---
+Existing deterministic Python engines.
+Optional LLM calls only where useful.
+No new major platform is required.
+19. Final priority table
+P0 — Must complete
+1 . Exact SerpApi evidence must flow into the final report.
+2. Remove hidden SHIP-7010 business branching.
+3. Show the dependency chain.
+4. Add evidence-backed “Why this option?”
+5. Clearly label live, cache, demo, and failed search states.
+Change Value Effort Risk Demo
+impact
+Priority
+Use exact investigation evidence in
+audit/report
+Very high Medium Low Very high P0
+Remove hero-only dossier branching Very high High Medium Very high P0
+Display complete dependency chain Very high Medium Low Very high P0
+Add “Why this option?” explanation Very high Medium Low Very high P0
+Make fallback/source status unmistakable Very high Low Low High P0
+Persist investigation and decision audit High Medium Low High P1
+Improve multi-result search
+ranking/deduplication
+High Medium Medium High P1
+Add derived severity explanation High Low Low High P1
+Generalize absorbed/no-impact scenario High Medium Medium High P1
+Integrate LangGraph into main API Medium High High Medium P2
+Use Gemini for narrative explanation Medium Low Medium Medium P2
+Add more recovery options Low Medium Medium Low P2
+Authentication Low for
+demo
+High High Low P3
+Real-time monitoring Low for
+demo
+Very
+high
+High Low P3
+Real procurement execution Low for
+demo
+Very
+high
+High Low P3
+Final Product Deﬁnition and Four-Day Execution Plan
+Page 30 of 33
+---PAGE---
+P1 — Should complete
+1 . Persist investigation and decision audit.
+2. Improve result ranking and source preservation.
+3. Add severity reasoning.
+4. Support a second non-incident or absorbed-impact scenario.
+5. Update documentation and demo instructions.
+P2 — Only if time remains
+1 . Integrate LangGraph into the Flask path.
+2. Add optional LLM narrative summarization.
+3. Improve multiple-source aggregation.
+4. Add more recovery templates.
+P3 — Do not touch
+1 . Authentication.
+2. Real-time event processing.
+3. Procurement integration.
+4. AIS integration.
+5. New infrastructure.
+6. Additional agents.
+7. Enterprise-scale architecture.
+20. Final success checklist
+SerpApi is meaningfully used.
+Search results are real or explicitly labeled as controlled fallback.
+Source URLs and dates are preserved.
+A new disruption can be processed without a hidden hero-shipment branch.
+Disruption is structured.
+Supplier and shipment are resolved.
+Component-to-product dependency is demonstrated.
+Production impact is calculated from inventory and schedule data.
+Severity has an explanation.
+Response options are generated from controlled data.
+Recommended response has rule and evidence reasoning.
+Final Product Deﬁnition and Four-Day Execution Plan
+Page 31 of 33
+---PAGE---
+Complete report is generated.
+Hardcoded business conclusions are removed from the main path.
+Controlled fixtures are clearly labeled.
+Failures have honest fallback behavior.
+Audit records survive backend restart.
+Demo completes in under three minutes.
+Repository setup is understandable.
+SerpApi’s contribution is obvious to a judge.
+Biggest strengths
+1 . The repository already contains a working operational chain from search to impact to
+response.
+2. SerpApi integration is real and uses Google News.
+3. SQLite contains a credible controlled dependency dataset.
+4. Inventory, shortage, work-order, customer-order, and financial calculations are
+executable.
+5. C1–C8 recovery-option evaluation provides strong technical credibility.
+6. The frontend already presents role-specific workflows.
+7. The system has explicit search states and source-tier concepts.
+8. The canonical scenario is coherent and demo-friendly.
+9. The evidence, dossier, decision, and audit concepts are already represented.
+1 0. The project has enough existing structure to improve without a rewrite.
+Biggest gaps
+1 . The main impact dossier is hardcoded to SHIP-7010.
+2. The evidence drawer can disagree with the actual search.
+3. The default fallback can look like live disruption detection.
+4. Audit records are in memory.
+5. The dependency chain is not fully visible in the final report.
+6. LLM and LangGraph paths are disconnected from the primary UI.
+7. The main parser is heuristic-only.
+8. Procurement execution is simulated.
+9. Role selection is not authentication or authorization.
+1 0. The current report mixes dynamic calculations with static scenario values.
+Final Product Deﬁnition and Four-Day Execution Plan
+Page 32 of 33
+---PAGE---
+Top 5 must-fix items
+1 . Wire exact SerpApi investigation evidence into the final report and audit view.
+2. Generalize the impact path so the selected operation, not SHIP-7010, controls the
+calculation.
+3. Show the complete supplier → shipment → component → product → work order →
+customer dependency chain.
+4. Add a visible “Why this option?” explanation based on evidence, calculations, and
+C1–C8 rules.
+5. Make live, cache, demo, and failure states impossible to confuse.
+Four-day build plan
+Day 1: Make exact SerpApi evidence flow through investigation, evidence, audit, and
+export.
+Day 2: Generalize dossier and impact calculation for the selected shipment and expose
+the dependency chain.
+Day 3: Add explainable recommendation reasoning and durable investigation/decision
+audit.
+Day 4: Test every branch, update setup and SerpApi documentation, remove unsupported
+claims, and record the three-minute demo.
+Final demo story
+A planner selects an in-transit shipment from the internal operations dataset. The system
+generates a shipment-specific SerpApi Google News query and retrieves current external
+evidence. The source article, URL, date, and query are shown directly. The system
+extracts the disruption, resolves it to the affected supplier, shipment, and component,
+then follows the controlled dependency data into the finished product, work order, and
+customer commitment. Inventory and schedule calculations show the stockout and
+customer exposure. Recovery options are evaluated against deterministic constraints.
+The system recommends the best surviving option and explains why using the evidence,
+dependency chain, impact calculation, and rule outcomes. A VP approves or escalates the
+recommendation, and the complete evidence-backed decision record is exported.
+Final product statement
+External disruption → evidence → operational impact → response → explained decision.
+Final Product Deﬁnition and Four-Day Execution Plan
+Page 33 of 33
+---PAGE---

@@ -162,6 +162,10 @@ def llm_evaluate_options_gemini(
     Sends options and constraint rules to Gemini for natural language reasoning.
     Returns parsed structured analysis.
     """
+    if not config.GEMINI_API_KEY:
+        logger.warning("No GEMINI_API_KEY configured. Using deterministic constraint results only.")
+        return None
+
     client = genai.Client(api_key=config.GEMINI_API_KEY)
 
     prompt = f"""

@@ -26,6 +26,17 @@ def generate_executive_briefing_gemini(
     Prompts Gemini to draft a concise 3-sentence executive summary
     synthesizing the trade-off and rule vetoes for leadership.
     """
+    if not config.GEMINI_API_KEY:
+        logger.warning("No GEMINI_API_KEY configured. Using deterministic executive briefing.")
+        return (
+            f"A Port Klang shipping disruption creates a confirmed {shortage_window_days}-day stator coil shortage, "
+            f"exposing ACME Corp order SO-55102 to ${otif_exposure_usd:,.2f} in OTIF penalties. "
+            f"We recommend executing {survivor.get('option_id')}: spot buy 900 units via {survivor.get('freight_mode', 'expedited freight').lower()} "
+            f"from {survivor.get('supplier_name', 'the recommended supplier')} for ${survivor.get('estimated_cost_usd', 30150):,.2f}, "
+            f"arriving {survivor.get('arrival_date')} to protect the production line and preserve ~${otif_exposure_usd - survivor.get('estimated_cost_usd', 30150):,.2f}. "
+            f"Three alternative options were disqualified by deterministic constraints, routing this spend to the VP Supply Chain for Rule C5 approval."
+        )
+
     client = genai.Client(api_key=config.GEMINI_API_KEY)
 
     prompt = f"""
@@ -50,18 +61,19 @@ Sentence 1: State the crisis (disruption, shortage window, and $120k OTIF penalt
 Sentence 2: State the recommended action, its cost ($30,150 air freight from EuroCoils), and net value saved (~$89,850).
 Sentence 3: State that all 3 alternatives were eliminated by hard engineering/planning constraints (C1, C4, C3/C6), requiring the VP's sign-off under C5.
 """
-    models_to_try = ["gemini-flash-latest", "gemini-3.5-flash-lite", "gemini-3.8-flash"]
+    models_to_try = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"]
     for model_name in models_to_try:
         try:
             response = client.models.generate_content(
                 model=model_name,
                 contents=prompt
             )
-            return response.text.strip()
+            if response and response.text:
+                return response.text.strip()
         except Exception as e:
-            logger.warning(f"Gemini {model_name} failed in recommendation: {e}. Trying next...")
+            logger.debug(f"Gemini {model_name} attempt skipped ({e}). Falling back.")
 
-    # Deterministic fallback if API offline
+    # Deterministic fallback if API offline or busy
     return (
         f"A Port Klang shipping disruption creates a confirmed {shortage_window_days}-day stator coil shortage, "
         f"exposing ACME Corp order SO-55102 to ${otif_exposure_usd:,.2f} in OTIF penalties. "

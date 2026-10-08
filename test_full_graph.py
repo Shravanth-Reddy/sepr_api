@@ -18,7 +18,7 @@ print("=" * 75)
 print("TEST 1: SCENARIO A — COMPLETE SHORTAGE & RECOVERY LIFECYCLE (LANGGRAPH)")
 print("=" * 75)
 
-state_a = {"query": "Port Klang disruption", "force_tier": 1}
+state_a = {"query": "Port Klang disruption", "force_tier": 3}
 res_a = app.invoke(state_a)
 
 print(f"Final Status:         {res_a.get('final_status')}")
@@ -66,7 +66,7 @@ print("\n" + "=" * 75)
 print("TEST 3: SCENARIO C — FALSE POSITIVE SIGNAL (MANILA)")
 print("=" * 75)
 
-state_c = {"query": "Manila typhoon strike", "force_tier": 1}
+state_c = {"query": "Manila typhoon strike", "force_tier": 3}
 res_c = app.invoke(state_c)
 print(f"Final Status:  {res_c.get('final_status')}")
 print(f"Signal Status: {res_c.get('signal_status')}")

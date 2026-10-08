@@ -1,4 +1,9 @@
+import os
+import pytest
 import requests
+
+if os.getenv("RUN_LIVE_API_TESTS") != "1":
+    pytest.skip("Live server tests require RUN_LIVE_API_TESTS=1", allow_module_level=True)
 
 print("--- Test 1: GET http://127.0.0.1:8000/api/incidents ---")
 r1 = requests.get("http://127.0.0.1:8000/api/incidents", timeout=5)
@@ -20,7 +25,8 @@ r3 = requests.post("http://127.0.0.1:8000/api/decisions", json={
     "incident_id": "INC-2026-PORT-KLANG-01",
     "option_id": "OPT-A",
     "action": "APPROVE",
-    "approver_role": "VP Supply Chain"
+    "approver_role": "VP Supply Chain",
+    "notes": "Protect the ACME SLA with the lowest-cost option that passes all hard constraints."
 }, timeout=5)
 assert r3.status_code == 200
 dec = r3.json()
